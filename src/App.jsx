@@ -53,6 +53,7 @@ const App = () => {
     initialState
   );
   const NumQuestions = questions.length;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,8 +87,7 @@ const App = () => {
           <Question
             dispatch={dispatch}
             answer={answer}
-            index={index}
-            questions={questions}
+            questions={questions[index]}
           />
         )}
       </Content>
