@@ -165,9 +165,10 @@ progress {
   color: var(--color-light);
 }
 .btn-option.wrong {
-  background-color: var(--color-accent);
+  background-color: red;
+  
   border: 2px solid var(--color-accent);
-  color: var(--color-darkest);
+  color: white;
 }
 
 .answer {

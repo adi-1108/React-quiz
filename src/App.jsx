@@ -5,12 +5,14 @@ import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
+import Progress from "./Progress";
 
 const initialState = {
   questions: [],
   status: "loading",
   index: 0,
   answer: null,
+  points: 0,
 };
 
 const reducer = (state, action) => {
@@ -38,9 +40,22 @@ const reducer = (state, action) => {
       };
 
     case "newAnswer":
+      const CurrQuestion = state.questions.at(state.index);
       return {
         ...state,
         answer: action.payload,
+        points:
+          action.payload === CurrQuestion.correctOption
+            ? state.points + CurrQuestion.points
+            : state.points,
+      };
+
+    case "nextQuestion":
+      return {
+        ...state,
+        index: state.index + 1,
+        answer: null,
+        status: "active",
       };
     default:
       throw new Error("Action unknown");
@@ -48,12 +63,12 @@ const reducer = (state, action) => {
 };
 
 const App = () => {
-  const [{ questions, status, index, answer }, dispatch] = useReducer(
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
     reducer,
     initialState
   );
   const NumQuestions = questions.length;
-
+  console.log(index);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -78,18 +93,24 @@ const App = () => {
       <Header />
 
       <Content>
-        {status === "loading" && <Loader />}
-        {status === "error" && <Error />}
-        {status === "ready" && (
-          <StartScreen dispatch={dispatch} NumQuestions={NumQuestions} />
-        )}
-        {status === "active" && (
-          <Question
-            dispatch={dispatch}
-            answer={answer}
-            questions={questions[index]}
-          />
-        )}
+        <>
+          {status === "loading" && <Loader />}
+          {status === "error" && <Error />}
+          {status === "ready" && (
+            <StartScreen dispatch={dispatch} NumQuestions={NumQuestions} />
+          )}
+          {status === "active" && (
+            <>
+              <Progress index={index} numQuestion={NumQuestions} />
+              <Question
+                dispatch={dispatch}
+                answer={answer}
+                points={points}
+                questions={questions[index]}
+              />
+            </>
+          )}
+        </>
       </Content>
     </div>
   );

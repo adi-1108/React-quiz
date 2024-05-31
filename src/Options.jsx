@@ -8,6 +8,7 @@ const Options = ({ questions, dispatch, answer }) => {
 
   return (
     <div>
+      
       <div className="options">
         {questions.options.map((el, _in) => (
           <button
@@ -24,7 +25,7 @@ const Options = ({ questions, dispatch, answer }) => {
             disabled={answer !== null}
             key={el}
           >
-            {el} {}
+            {el}
           </button>
         ))}
       </div>
