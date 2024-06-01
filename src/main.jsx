@@ -6,7 +6,7 @@ import BankApp from "./BankAcc with reducer/BankApp";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {/* <App /> */}
-    <BankApp />
+    <App />
+    {/*  <BankApp /> */}
   </React.StrictMode>
 );
