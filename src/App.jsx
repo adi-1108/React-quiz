@@ -6,6 +6,7 @@ import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
 import Progress from "./Progress";
+import Finished from "./Finished";
 
 const initialState = {
   questions: [],
@@ -13,8 +14,9 @@ const initialState = {
   index: 0,
   answer: null,
   points: 0,
+  secondsRemaining: null,
 };
-
+const SECS_PER_QUESTION = 10;
 const reducer = (state, action) => {
   switch (action.type) {
     case "dataRecieved":
@@ -33,6 +35,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         status: "active",
+        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
       };
     case "next":
       return {
@@ -57,18 +60,46 @@ const reducer = (state, action) => {
         answer: null,
         status: "active",
       };
+    case "quizEnd":
+      return {
+        ...state,
+        status: "finished",
+        answer: null,
+        index: 0,
+      };
+
+    case "restartQuiz":
+      return {
+        ...state,
+        status: "ready",
+        answer: null,
+        points: 0,
+        index: 0,
+        secondsRemaining: 60,
+      };
+
+    case "tick":
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? "finished" : state.status,
+      };
     default:
       throw new Error("Action unknown");
   }
 };
 
 const App = () => {
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [
+    { questions, status, index, answer, points, secondsRemaining },
+    dispatch,
+  ] = useReducer(reducer, initialState);
   const NumQuestions = questions.length;
-  console.log(index);
+  const maxPossiblePoints = questions.reduce(
+    (acc, curr) => acc + curr.points,
+    0
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -101,14 +132,25 @@ const App = () => {
           )}
           {status === "active" && (
             <>
-              <Progress index={index} numQuestion={NumQuestions} />
+              <Progress
+                index={index}
+                points={points}
+                numQuestion={NumQuestions}
+                maxPossiblePoints={maxPossiblePoints}
+              />
               <Question
                 dispatch={dispatch}
                 answer={answer}
                 points={points}
                 questions={questions[index]}
+                numQuestion={NumQuestions}
+                index={index}
+                secondsRemaining={secondsRemaining}
               />
             </>
+          )}
+          {status === "finished" && (
+            <Finished points={points} dispatch={dispatch} />
           )}
         </>
       </Content>
